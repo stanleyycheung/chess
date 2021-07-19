@@ -21,6 +21,14 @@ void test1()
 	// cb.submitMove("E7", "E6");
 }
 
+void test2()
+{
+	ChessBoard cb;
+	cb.submitMove("e4");
+	cb.submitMove("e5");
+	cb.submitMove("Nc3");
+	cb.submitMove("Nf6");
+}
 
 void test_engine()
 {
@@ -122,7 +130,8 @@ int main()
 {
 
 	// test1();
+	test2();
 	// test_engine();
-	test_game();
+	// test_game();
 	return 0;
 }

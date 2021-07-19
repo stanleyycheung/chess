@@ -10,6 +10,7 @@ class ChessBoard
 private:
     ChessPiece *board[BOARD_SIZE][BOARD_SIZE];
     int turn;
+    // int mode = algebriac;
 
     void printRowKey();
     void printRowFrame();
@@ -18,6 +19,9 @@ private:
 
     void setBoard();
     void clearBoard();
+
+    std::string returnMoveType(std::string move);
+    Square getToSquare(std::string move);
 
     bool validMove(Square fromSquare, Square toSquare);
     bool validAttack(Square fromSquare, Square toSquare);
@@ -35,6 +39,7 @@ private:
 public:
     ChessBoard();
     ~ChessBoard();
+    void submitMove(std::string move);
     void submitMove(std::string fromStr, std::string toStr);
     void resetBoard();
     void printBoard();

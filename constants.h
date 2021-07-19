@@ -31,5 +31,10 @@ enum DIRECTION
     NW
 };
 
+// enum CHESS_INPUTS
+// {
+//     algebriac,
+// };
+
 
 #endif

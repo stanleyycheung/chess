@@ -4,8 +4,8 @@ using namespace std;
 
 Square::Square(std::string moveString)
 {
-    x = BOARD_SIZE - (moveString[1] - '1') - 1;
-    y = moveString[0] - 'A';
+    x = BOARD_SIZE - (toupper(moveString[1]) - '1') - 1;
+    y = toupper(moveString[0]) - 'A';
 }
 
 Square::Square(DIRECTION d)

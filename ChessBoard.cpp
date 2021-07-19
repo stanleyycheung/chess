@@ -19,6 +19,98 @@ ChessBoard::~ChessBoard()
     clearBoard();
 }
 
+void ChessBoard::submitMove(std::string move)
+{   
+    // can optimise by placing a virtual piece on the ending move and only check those squares
+    std::string moveType = returnMoveType(move);
+    Square toSquare = getToSquare(move);
+    if (moveType == " " || toSquare.x >= BOARD_SIZE || toSquare.y >= BOARD_SIZE || toSquare.x < 0 || toSquare.y < 0)
+    {
+        cout << "This move is invalid: " << move << endl;
+    }
+    if (moveType == "Castling")
+    {
+        // deal with castling
+    }
+    std::vector <ChessPiece *> possiblePieces;
+    for (int i = 0; i < BOARD_SIZE; i++)
+    {
+        for (int j = 0; j < BOARD_SIZE; j++)
+        {
+            if (board[i][j] != nullptr && board[i][j]->getColour() == turn && board[i][j]->getName() == moveType)
+            {
+                vector<Square> possibleMoves = board[i][j]->getMoveSquares(board);
+                for (Square square : possibleMoves)
+                {
+                    if (square == toSquare)
+                    {
+                        possiblePieces.push_back(board[i][j]);
+                    }
+                }
+            }
+        }
+    }
+    // cout << toSquare.squareRepresentation() << endl;
+    // cout << possiblePieces.size() << endl;
+    if (possiblePieces.size() == 1) {
+        ChessPiece *piece = possiblePieces[0];
+        ChessPiece *targetPiece = getPiece(toSquare);
+    }
+    else if (possiblePieces.size() == 2)
+    {
+        // need to find specific move
+
+    }
+    else 
+    {
+
+    }
+    
+}
+
+std::string ChessBoard::returnMoveType(std::string move)
+{
+    std::string moveType;
+    if (!isupper(move[0])) moveType = "Pawn";
+    else
+    {
+        switch (move[0]) 
+        {
+            case 'B':
+                moveType = "Bishop";
+                break;
+            case 'N':
+                moveType = "Knight";
+                break;
+            case 'R':
+                moveType = "Rook";
+                break;
+            case 'Q':
+                moveType = "Queen";
+                break;
+            case 'K':
+                moveType = "King";
+                break;
+            case 'O':
+                moveType = "Castling";
+                break;
+            default:
+                moveType = " ";
+        }
+    }
+    return moveType;
+}
+
+Square ChessBoard::getToSquare(std::string move)
+{
+    int i = 0;
+    for (; i < move.size(); i++)
+    {
+        if (isdigit(move[i])) break;
+    }
+    return Square(move.substr(i-1, i+1));
+}
+
 void ChessBoard::submitMove(std::string fromStr, std::string toStr)
 {
     if (!validMoveString(fromStr))
@@ -59,7 +151,7 @@ void ChessBoard::submitMove(std::string fromStr, std::string toStr)
         if (!validAttack(fromSquare, toSquare))
             return;
     }
-    
+
     // bool inCheck = kingIfInCheck(turn);
     // if (inCheck) {
     //     string turnString = getTurnString();
@@ -74,9 +166,9 @@ void ChessBoard::submitMove(std::string fromStr, std::string toStr)
         return;
     }
     cout << turnString << "'s " << piece->getName() << " moves from " << fromSquare.squareRepresentation() << " to " << toSquare.squareRepresentation();
-    if (capture) 
+    if (capture)
     {
-        ChessPiece* capturedPiece = board[toSquare.x][toSquare.y];
+        ChessPiece *capturedPiece = board[toSquare.x][toSquare.y];
         string opponentTurnString = getOpponentTurnString();
         cout << " taking " << opponentTurnString << "'s " << capturedPiece->getName();
     }
@@ -84,18 +176,19 @@ void ChessBoard::submitMove(std::string fromStr, std::string toStr)
     movePiece(fromSquare, toSquare);
     int opponentTurn = (turn == WHITE) ? BLACK : WHITE;
     bool opponentCheck = kingIfInCheck(opponentTurn);
-    if (opponentCheck) {
+    if (opponentCheck)
+    {
         string opponentTurnString = getOpponentTurnString();
         if (!haveValidMove(opponentTurn))
         {
             cout << opponentTurnString << " is in checkmate" << endl;
         }
-        else 
+        else
         {
             cout << opponentTurnString << " is in check" << endl;
         }
     }
-    else 
+    else
     {
         if (!haveValidMove(opponentTurn))
         {
@@ -169,9 +262,10 @@ bool ChessBoard::ifMoveInCheck(Square fromSquare, Square toSquare)
     return safeMove;
 }
 
-bool ChessBoard::kingIfInCheck(int colour) {
+bool ChessBoard::kingIfInCheck(int colour)
+{
     Square kingSquare(-1, -1);
-    vector <ChessPiece *> opponentPieces;
+    vector<ChessPiece *> opponentPieces;
     for (int i = 0; i < BOARD_SIZE; i++)
     {
         for (int j = 0; j < BOARD_SIZE; j++)
@@ -180,7 +274,7 @@ bool ChessBoard::kingIfInCheck(int colour) {
             {
                 kingSquare = board[i][j]->getPosition();
             }
-            if (board[i][j] != nullptr && board[i][j]->getColour() != colour) 
+            if (board[i][j] != nullptr && board[i][j]->getColour() != colour)
             {
                 opponentPieces.push_back(board[i][j]);
             }
@@ -191,7 +285,7 @@ bool ChessBoard::kingIfInCheck(int colour) {
     // cout << kingSquare.squareRepresentation() << endl;
     for (auto it = opponentPieces.begin(); it != opponentPieces.end(); it++)
     {
-        vector <Square> attackedSquares;
+        vector<Square> attackedSquares;
         attackedSquares = (*it)->getAttackSquares(board);
         // if ((*it)->getName() == "Bishop") {
         //     for (auto its = attackedSquares.begin(); its != attackedSquares.end(); its++)
@@ -199,8 +293,10 @@ bool ChessBoard::kingIfInCheck(int colour) {
         //         cout << "square: " << (its)->squareRepresentation() << endl;
         //     }
         // }
-        for (Square square : attackedSquares) {
-            if (square == kingSquare) {
+        for (Square square : attackedSquares)
+        {
+            if (square == kingSquare)
+            {
                 // cout << "king is attacked" << endl;
                 // cout << "attacked by: " << (*it)->getInfo() << endl;
                 return true;
@@ -209,7 +305,6 @@ bool ChessBoard::kingIfInCheck(int colour) {
     }
     return false;
 }
-
 
 bool ChessBoard::haveValidMove(int turn)
 {
@@ -222,7 +317,7 @@ bool ChessBoard::haveValidMove(int turn)
             {
                 Square fromSquare = piece->getPosition();
                 vector<Square> moves = piece->getMoveSquares(board);
-                for (Square move: moves)
+                for (Square move : moves)
                 {
                     ChessPiece *temp = getPiece(move);
                     movePiece(fromSquare, move);
@@ -239,7 +334,6 @@ bool ChessBoard::haveValidMove(int turn)
     }
     return false;
 }
-
 
 bool ChessBoard::validMoveString(std::string move)
 {
@@ -300,7 +394,8 @@ void ChessBoard::setBoard()
         }
     }
     // initialising pawns
-    for (int i = 0; i < BOARD_SIZE; i++) {
+    for (int i = 0; i < BOARD_SIZE; i++)
+    {
         board[1][i] = new Pawn(BLACK, Square(1, i));
         board[6][i] = new Pawn(WHITE, Square(6, i));
     }
@@ -329,7 +424,7 @@ void ChessBoard::setBoard()
     board[BOARD_SIZE - 1][3] = new Queen(WHITE, Square(BOARD_SIZE - 1, 3));
     // placing knights
     board[0][1] = new Knight(BLACK, Square(0, 1));
-    board[0][6] = new Knight(BLACK , Square(0, 6));
+    board[0][6] = new Knight(BLACK, Square(0, 6));
     board[BOARD_SIZE - 1][1] = new Knight(WHITE, Square(BOARD_SIZE - 1, 1));
     board[BOARD_SIZE - 1][6] = new Knight(WHITE, Square(BOARD_SIZE - 1, 6));
 
